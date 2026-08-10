@@ -1,30 +1,42 @@
-// This is a basic Flutter widget test.
-//
-// To perform an interaction with a widget in your test, use the WidgetTester
-// utility in the flutter_test package. For example, you can send tap and scroll
-// gestures. You can also use WidgetTester to find child widgets in the widget
-// tree, read text, and verify that the values of widget properties are correct.
-
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
 
 import 'package:leaf/main.dart';
+import 'package:leaf/features/auth/log_in_screen.dart';
+import 'package:leaf/features/auth/sign_up_screen.dart';
 
 void main() {
-  testWidgets('Counter increments smoke test', (WidgetTester tester) async {
-    // Build our app and trigger a frame.
-    await tester.pumpWidget(const MyApp());
+  testWidgets('Onboarding screen shows welcome message and Get Started button', (
+    WidgetTester tester,
+  ) async {
+    await tester.pumpWidget(const LeafApp());
 
-    // Verify that our counter starts at 0.
-    expect(find.text('0'), findsOneWidget);
-    expect(find.text('1'), findsNothing);
+    expect(find.text('Welcome to Leaf'), findsOneWidget);
+    expect(find.widgetWithText(ElevatedButton, 'Get Started'), findsOneWidget);
+  });
 
-    // Tap the '+' icon and trigger a frame.
-    await tester.tap(find.byIcon(Icons.add));
-    await tester.pump();
+  testWidgets('Get Started navigates from onboarding to sign up', (
+    WidgetTester tester,
+  ) async {
+    await tester.pumpWidget(const LeafApp());
 
-    // Verify that our counter has incremented.
-    expect(find.text('0'), findsNothing);
-    expect(find.text('1'), findsOneWidget);
+    await tester.tap(find.widgetWithText(ElevatedButton, 'Get Started'));
+    await tester.pumpAndSettle();
+
+    expect(find.byType(SignUpScreen), findsOneWidget);
+  });
+
+  testWidgets('Sign up screen links to log in screen', (
+    WidgetTester tester,
+  ) async {
+    await tester.pumpWidget(const LeafApp());
+
+    await tester.tap(find.widgetWithText(ElevatedButton, 'Get Started'));
+    await tester.pumpAndSettle();
+
+    await tester.tap(find.text('Already have an account? Log in'));
+    await tester.pumpAndSettle();
+
+    expect(find.byType(LogInScreen), findsOneWidget);
   });
 }

@@ -1,6 +1,8 @@
 import 'package:flutter/material.dart';
+import 'package:provider/provider.dart';
 
 import 'features/onboarding/onboarding_screen.dart';
+import 'features/plants/plants_provider.dart';
 import 'theme/theme_data.dart';
 
 void main() {
@@ -12,10 +14,13 @@ class LeafApp extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return MaterialApp(
-      title: 'Leaf',
-      theme: AppTheme.light,
-      home: const OnboardingScreen(),
+    return ChangeNotifierProvider(
+      create: (_) => PlantsProvider(),
+      child: MaterialApp(
+        title: 'Leaf',
+        theme: AppTheme.light,
+        home: const OnboardingScreen(),
+      ),
     );
   }
 }

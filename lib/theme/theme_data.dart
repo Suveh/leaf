@@ -13,6 +13,8 @@ class AppColors {
   static const Color soilBrown = Color(0xFF4E3B2A);
   static const Color cream = Color(0xFFF6F1E7);
   static const Color error = Color(0xFFB3261E);
+  static const Color wateringAmber = Color(0xFFD98E3B);
+  static const Color placeholderFill = Color(0xFFE3DCC9);
 }
 
 /// App-wide [ThemeData]. Keep all colors and shared styling here so
@@ -85,6 +87,21 @@ class AppTheme {
       ),
       textButtonTheme: TextButtonThemeData(
         style: TextButton.styleFrom(foregroundColor: colorScheme.primary),
+      ),
+      cardTheme: CardThemeData(
+        color: Colors.white,
+        elevation: 1,
+        margin: EdgeInsets.zero,
+        shape: RoundedRectangleBorder(
+          borderRadius: BorderRadius.circular(16),
+        ),
+      ),
+      bottomNavigationBarTheme: BottomNavigationBarThemeData(
+        backgroundColor: Colors.white,
+        selectedItemColor: colorScheme.primary,
+        unselectedItemColor: AppColors.soilBrown.withValues(alpha: 0.5),
+        type: BottomNavigationBarType.fixed,
+        showUnselectedLabels: true,
       ),
     );
   }

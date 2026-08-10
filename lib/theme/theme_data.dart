@@ -14,6 +14,7 @@ class AppColors {
   static const Color cream = Color(0xFFF6F1E7);
   static const Color error = Color(0xFFB3261E);
   static const Color wateringAmber = Color(0xFFD98E3B);
+  static const Color overdueRed = Color(0xFFC1462F);
   static const Color placeholderFill = Color(0xFFE3DCC9);
 }
 

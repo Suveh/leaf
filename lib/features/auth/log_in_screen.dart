@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 
+import '../../shared/main_shell.dart';
 import 'auth_form_model.dart';
 import 'sign_up_screen.dart';
 
@@ -67,7 +68,13 @@ class _LogInForm extends StatelessWidget {
               ),
               const SizedBox(height: 32),
               ElevatedButton(
-                onPressed: () {},
+                onPressed: () {
+                  Navigator.of(context).pushReplacement(
+                    MaterialPageRoute(
+                      builder: (_) => const MainShell(),
+                    ),
+                  );
+                },
                 child: const Text('Log In'),
               ),
               const SizedBox(height: 16),

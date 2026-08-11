@@ -4,6 +4,7 @@ import 'package:provider/provider.dart';
 import 'add_edit_plant_screen.dart';
 import 'plant.dart';
 import 'plant_card.dart';
+import 'plant_detail_screen.dart';
 import 'plants_provider.dart';
 
 /// Shows every plant the user is tracking as a list of cards.
@@ -49,7 +50,7 @@ class _PlantList extends StatelessWidget {
             final plant = plants[index];
             return PlantCard(
               plant: plant,
-              onTap: () => _openEdit(context, plant),
+              onTap: () => _openDetail(context, plant),
             );
           },
         );
@@ -57,10 +58,10 @@ class _PlantList extends StatelessWidget {
     );
   }
 
-  void _openEdit(BuildContext context, Plant plant) {
+  void _openDetail(BuildContext context, Plant plant) {
     Navigator.of(context).push(
       MaterialPageRoute(
-        builder: (_) => AddEditPlantScreen(plant: plant),
+        builder: (_) => PlantDetailScreen(plantId: plant.id),
       ),
     );
   }

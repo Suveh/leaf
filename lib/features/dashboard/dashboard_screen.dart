@@ -3,6 +3,7 @@ import 'package:provider/provider.dart';
 
 import '../../theme/theme_data.dart';
 import '../plants/plants_provider.dart';
+import '../reminders/reminders_screen.dart';
 
 /// Home tab: a quick summary of the user's plants and a way to jump into
 /// the full plant list.
@@ -27,6 +28,16 @@ class DashboardScreen extends StatelessWidget {
                 onPressed: onViewPlants,
                 icon: const Icon(Icons.local_florist_outlined),
                 label: const Text('View My Plants'),
+              ),
+              const SizedBox(height: 12),
+              OutlinedButton.icon(
+                onPressed: () {
+                  Navigator.of(context).push(
+                    MaterialPageRoute(builder: (_) => const RemindersScreen()),
+                  );
+                },
+                icon: const Icon(Icons.water_drop_outlined),
+                label: const Text('Watering Schedule'),
               ),
             ],
           ),

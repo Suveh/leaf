@@ -103,8 +103,15 @@ class _AddEditFormState extends State<_AddEditForm> {
     final plantsProvider = context.read<PlantsProvider>();
     final existing = widget.plant;
 
-    final plant = (existing ?? Plant(id: _newId(), name: '', species: ''))
-        .copyWith(
+    final plant =
+        (existing ??
+                Plant(
+                  id: _newId(),
+                  name: '',
+                  species: '',
+                  nextWateringDate: DateTime.now(),
+                ))
+            .copyWith(
           name: formModel.nameController.text.trim(),
           species: formModel.speciesController.text.trim(),
         );

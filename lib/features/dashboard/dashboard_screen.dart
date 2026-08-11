@@ -2,6 +2,8 @@ import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 
 import '../../theme/theme_data.dart';
+import '../community_feed/community_feed_screen.dart';
+import '../plant_library/plant_library_screen.dart';
 import '../plants/plants_provider.dart';
 import '../reminders/reminders_screen.dart';
 
@@ -38,6 +40,30 @@ class DashboardScreen extends StatelessWidget {
                 },
                 icon: const Icon(Icons.water_drop_outlined),
                 label: const Text('Watering Schedule'),
+              ),
+              const SizedBox(height: 12),
+              OutlinedButton.icon(
+                onPressed: () {
+                  Navigator.of(context).push(
+                    MaterialPageRoute(
+                      builder: (_) => const PlantLibraryScreen(),
+                    ),
+                  );
+                },
+                icon: const Icon(Icons.menu_book_outlined),
+                label: const Text('Plant Library'),
+              ),
+              const SizedBox(height: 12),
+              OutlinedButton.icon(
+                onPressed: () {
+                  Navigator.of(context).push(
+                    MaterialPageRoute(
+                      builder: (_) => const CommunityFeedScreen(),
+                    ),
+                  );
+                },
+                icon: const Icon(Icons.forum_outlined),
+                label: const Text('Community Tips'),
               ),
             ],
           ),

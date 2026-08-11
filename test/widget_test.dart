@@ -5,6 +5,8 @@ import 'package:leaf/main.dart';
 import 'package:leaf/features/auth/log_in_screen.dart';
 import 'package:leaf/features/auth/sign_up_screen.dart';
 import 'package:leaf/features/camera_log/photo_log_screen.dart';
+import 'package:leaf/features/onboarding/onboarding_screen.dart';
+import 'package:leaf/features/plant_library/plant_library_screen.dart';
 import 'package:leaf/features/plants/plant_detail_screen.dart';
 import 'package:leaf/features/plants/plant_list_screen.dart';
 import 'package:leaf/features/reminders/reminders_screen.dart';
@@ -138,4 +140,70 @@ void main() {
       expect(find.textContaining('Overdue by'), findsNothing);
     },
   );
+
+  testWidgets(
+    'Dashboard "Plant Library" opens a searchable species list',
+    (WidgetTester tester) async {
+      await _signUpIntoDashboard(tester);
+
+      await tester.tap(find.widgetWithText(OutlinedButton, 'Plant Library'));
+      await tester.pumpAndSettle();
+
+      expect(find.byType(PlantLibraryScreen), findsOneWidget);
+      expect(find.text('Snake Plant'), findsOneWidget);
+
+      await tester.enterText(find.byType(TextField), 'fiddle');
+      await tester.pumpAndSettle();
+
+      expect(find.text('Fiddle Leaf Fig'), findsOneWidget);
+      expect(find.text('Snake Plant'), findsNothing);
+    },
+  );
+
+  testWidgets('Dashboard "Community Tips" shows dummy tip posts', (
+    WidgetTester tester,
+  ) async {
+    await _signUpIntoDashboard(tester);
+
+    await tester.tap(find.widgetWithText(OutlinedButton, 'Community Tips'));
+    await tester.pumpAndSettle();
+
+    expect(find.textContaining('Jordan P.'), findsOneWidget);
+    expect(find.textContaining('42'), findsOneWidget);
+  });
+
+  testWidgets('Profile tab shows dummy info and Log Out returns to onboarding', (
+    WidgetTester tester,
+  ) async {
+    await _signUpIntoDashboard(tester);
+
+    await tester.tap(find.byIcon(Icons.person_outline));
+    await tester.pumpAndSettle();
+
+    expect(find.text('Ivy Gardener'), findsOneWidget);
+    expect(find.text('ivy.gardener@example.com'), findsOneWidget);
+
+    await tester.tap(find.widgetWithText(OutlinedButton, 'Log Out'));
+    await tester.pumpAndSettle();
+
+    expect(find.byType(OnboardingScreen), findsOneWidget);
+    expect(find.byType(MainShell), findsNothing);
+  });
+
+  testWidgets('Settings tab toggles switches locally', (
+    WidgetTester tester,
+  ) async {
+    await _signUpIntoDashboard(tester);
+
+    await tester.tap(find.byIcon(Icons.settings_outlined));
+    await tester.pumpAndSettle();
+
+    final notificationsSwitch = find.byType(Switch).at(0);
+    expect(tester.widget<Switch>(notificationsSwitch).value, isTrue);
+
+    await tester.tap(notificationsSwitch);
+    await tester.pumpAndSettle();
+
+    expect(tester.widget<Switch>(notificationsSwitch).value, isFalse);
+  });
 }

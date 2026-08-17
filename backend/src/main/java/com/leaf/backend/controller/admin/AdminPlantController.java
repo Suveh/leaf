@@ -1,4 +1,4 @@
-package com.leaf.backend.controller;
+package com.leaf.backend.controller.admin;
 
 import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Controller;

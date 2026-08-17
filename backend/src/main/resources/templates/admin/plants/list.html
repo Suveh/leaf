@@ -28,7 +28,7 @@
         <tbody>
         <tr th:each="plant : ${plants}">
             <td><a th:href="@{/admin/plants/{id}(id=${plant.id})}" th:text="${plant.name}"></a></td>
-            <td th:text="${plant.species}"></td>
+            <td th:text="${plant.species} ?: '—'"></td>
             <td th:text="${plant.wateringFrequencyDays}"></td>
             <td th:text="${plant.lastWateredDate} ?: '—'"></td>
             <td class="actions">

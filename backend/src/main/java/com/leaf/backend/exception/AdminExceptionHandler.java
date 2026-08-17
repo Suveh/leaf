@@ -5,11 +5,7 @@ import org.springframework.web.bind.annotation.ControllerAdvice;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.servlet.ModelAndView;
 
-import com.leaf.backend.controller.AdminCareLogController;
-import com.leaf.backend.controller.AdminPlantController;
-import com.leaf.backend.controller.AdminReminderController;
-
-@ControllerAdvice(assignableTypes = {AdminPlantController.class, AdminCareLogController.class, AdminReminderController.class})
+@ControllerAdvice(basePackages = "com.leaf.backend.controller.admin")
 public class AdminExceptionHandler {
 
     @ExceptionHandler(ResourceNotFoundException.class)

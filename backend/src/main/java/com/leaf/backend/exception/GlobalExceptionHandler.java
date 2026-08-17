@@ -9,11 +9,7 @@ import org.springframework.web.bind.MethodArgumentNotValidException;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.RestControllerAdvice;
 
-import com.leaf.backend.controller.CareLogController;
-import com.leaf.backend.controller.PlantController;
-import com.leaf.backend.controller.ReminderController;
-
-@RestControllerAdvice(assignableTypes = {PlantController.class, CareLogController.class, ReminderController.class})
+@RestControllerAdvice(basePackages = "com.leaf.backend.controller.api")
 public class GlobalExceptionHandler {
 
     @ExceptionHandler(ResourceNotFoundException.class)

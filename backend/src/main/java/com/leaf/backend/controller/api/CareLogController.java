@@ -1,4 +1,4 @@
-package com.leaf.backend.controller;
+package com.leaf.backend.controller.api;
 
 import java.net.URI;
 import java.util.List;

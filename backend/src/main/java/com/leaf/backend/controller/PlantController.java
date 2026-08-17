@@ -16,8 +16,8 @@ import org.springframework.web.bind.annotation.RestController;
 import com.leaf.backend.dto.PlantRequest;
 import com.leaf.backend.dto.PlantResponse;
 import com.leaf.backend.entity.Plant;
-import com.leaf.backend.exception.ResourceNotFoundException;
 import com.leaf.backend.repository.PlantRepository;
+import com.leaf.backend.service.PlantFinder;
 
 import jakarta.validation.Valid;
 
@@ -26,9 +26,11 @@ import jakarta.validation.Valid;
 public class PlantController {
 
     private final PlantRepository plantRepository;
+    private final PlantFinder plantFinder;
 
-    public PlantController(PlantRepository plantRepository) {
+    public PlantController(PlantRepository plantRepository, PlantFinder plantFinder) {
         this.plantRepository = plantRepository;
+        this.plantFinder = plantFinder;
     }
 
     @GetMapping
@@ -40,7 +42,7 @@ public class PlantController {
 
     @GetMapping("/{id}")
     public PlantResponse getById(@PathVariable Long id) {
-        return PlantResponse.from(findPlantOrThrow(id));
+        return PlantResponse.from(plantFinder.getOrThrow(id));
     }
 
     @PostMapping
@@ -54,21 +56,16 @@ public class PlantController {
 
     @PutMapping("/{id}")
     public PlantResponse update(@PathVariable Long id, @Valid @RequestBody PlantRequest request) {
-        Plant plant = findPlantOrThrow(id);
+        Plant plant = plantFinder.getOrThrow(id);
         applyRequest(plant, request);
         return PlantResponse.from(plantRepository.save(plant));
     }
 
     @DeleteMapping("/{id}")
     public ResponseEntity<Void> delete(@PathVariable Long id) {
-        Plant plant = findPlantOrThrow(id);
+        Plant plant = plantFinder.getOrThrow(id);
         plantRepository.delete(plant);
         return ResponseEntity.noContent().build();
-    }
-
-    private Plant findPlantOrThrow(Long id) {
-        return plantRepository.findById(id)
-                .orElseThrow(() -> new ResourceNotFoundException("Plant " + id + " not found"));
     }
 
     private void applyRequest(Plant plant, PlantRequest request) {

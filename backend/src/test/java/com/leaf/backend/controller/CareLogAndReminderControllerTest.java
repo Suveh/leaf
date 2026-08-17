@@ -90,7 +90,7 @@ class CareLogAndReminderControllerTest {
 
         mockMvc.perform(post("/api/plants/999999/reminders")
                         .contentType(MediaType.APPLICATION_JSON)
-                        .content("{\"type\":\"WATERING\",\"dueDate\":\"2026-08-20\"}"))
+                        .content("{\"type\":\"WATERING\",\"dueDate\":\"2026-08-20\",\"completed\":false}"))
                 .andExpect(status().isNotFound());
     }
 
@@ -100,7 +100,7 @@ class CareLogAndReminderControllerTest {
 
         String response = mockMvc.perform(post("/api/plants/" + plantId + "/reminders")
                         .contentType(MediaType.APPLICATION_JSON)
-                        .content("{\"type\":\"WATERING\",\"dueDate\":\"2026-08-20\"}"))
+                        .content("{\"type\":\"WATERING\",\"dueDate\":\"2026-08-20\",\"completed\":false}"))
                 .andExpect(status().isCreated())
                 .andExpect(jsonPath("$.completed", is(false)))
                 .andReturn().getResponse().getContentAsString();
@@ -117,7 +117,7 @@ class CareLogAndReminderControllerTest {
 
         mockMvc.perform(put("/api/reminders/" + reminderId)
                         .contentType(MediaType.APPLICATION_JSON)
-                        .content("{\"type\":\"WATERING\",\"dueDate\":\"2026-08-20\"}"))
+                        .content("{\"type\":\"WATERING\",\"dueDate\":\"2026-08-20\",\"completed\":false}"))
                 .andExpect(status().isNotFound());
     }
 
@@ -127,7 +127,28 @@ class CareLogAndReminderControllerTest {
 
         mockMvc.perform(post("/api/plants/" + plantId + "/reminders")
                         .contentType(MediaType.APPLICATION_JSON)
-                        .content("{\"dueDate\":\"2026-08-20\"}"))
+                        .content("{\"dueDate\":\"2026-08-20\",\"completed\":false}"))
                 .andExpect(status().isBadRequest());
+    }
+
+    @Test
+    void updateReminderWithMissingCompletedReturns400() throws Exception {
+        long plantId = createPlant("Aloe");
+
+        String response = mockMvc.perform(post("/api/plants/" + plantId + "/reminders")
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content("{\"type\":\"WATERING\",\"dueDate\":\"2026-08-20\",\"completed\":true}"))
+                .andExpect(status().isCreated())
+                .andReturn().getResponse().getContentAsString();
+        long reminderId = objectMapper.readTree(response).get("id").asLong();
+
+        mockMvc.perform(put("/api/reminders/" + reminderId)
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content("{\"type\":\"WATERING\",\"dueDate\":\"2026-09-01\"}"))
+                .andExpect(status().isBadRequest());
+
+        mockMvc.perform(get("/api/plants/" + plantId + "/reminders"))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$[0].completed", is(true)));
     }
 }

@@ -17,8 +17,8 @@ import com.leaf.backend.dto.ReminderResponse;
 import com.leaf.backend.entity.Plant;
 import com.leaf.backend.entity.Reminder;
 import com.leaf.backend.exception.ResourceNotFoundException;
-import com.leaf.backend.repository.PlantRepository;
 import com.leaf.backend.repository.ReminderRepository;
+import com.leaf.backend.service.PlantFinder;
 
 import jakarta.validation.Valid;
 
@@ -26,16 +26,16 @@ import jakarta.validation.Valid;
 public class ReminderController {
 
     private final ReminderRepository reminderRepository;
-    private final PlantRepository plantRepository;
+    private final PlantFinder plantFinder;
 
-    public ReminderController(ReminderRepository reminderRepository, PlantRepository plantRepository) {
+    public ReminderController(ReminderRepository reminderRepository, PlantFinder plantFinder) {
         this.reminderRepository = reminderRepository;
-        this.plantRepository = plantRepository;
+        this.plantFinder = plantFinder;
     }
 
     @GetMapping("/api/plants/{plantId}/reminders")
     public List<ReminderResponse> getByPlant(@PathVariable Long plantId) {
-        requirePlant(plantId);
+        plantFinder.getOrThrow(plantId);
         return reminderRepository.findByPlantIdOrderByDueDateAsc(plantId).stream()
                 .map(ReminderResponse::from)
                 .toList();
@@ -43,7 +43,7 @@ public class ReminderController {
 
     @PostMapping("/api/plants/{plantId}/reminders")
     public ResponseEntity<ReminderResponse> create(@PathVariable Long plantId, @Valid @RequestBody ReminderRequest request) {
-        Plant plant = requirePlant(plantId);
+        Plant plant = plantFinder.getOrThrow(plantId);
 
         Reminder reminder = new Reminder();
         reminder.setPlant(plant);
@@ -71,11 +71,6 @@ public class ReminderController {
     private Reminder findReminderOrThrow(Long id) {
         return reminderRepository.findById(id)
                 .orElseThrow(() -> new ResourceNotFoundException("Reminder " + id + " not found"));
-    }
-
-    private Plant requirePlant(Long plantId) {
-        return plantRepository.findById(plantId)
-                .orElseThrow(() -> new ResourceNotFoundException("Plant " + plantId + " not found"));
     }
 
     private void applyRequest(Reminder reminder, ReminderRequest request) {

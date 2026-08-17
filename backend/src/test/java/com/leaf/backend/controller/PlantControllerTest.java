@@ -97,4 +97,33 @@ class PlantControllerTest {
         mockMvc.perform(get("/api/plants/" + id))
                 .andExpect(status().isNotFound());
     }
+
+    @Test
+    void deletingPlantCascadesToItsCareLogsAndReminders() throws Exception {
+        String createResponse = mockMvc.perform(post("/api/plants")
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content("""
+                                {"name":"Snake Plant","wateringFrequencyDays":14}
+                                """))
+                .andExpect(status().isCreated())
+                .andReturn().getResponse().getContentAsString();
+        long id = objectMapper.readTree(createResponse).get("id").asLong();
+
+        mockMvc.perform(post("/api/plants/" + id + "/logs")
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content("""
+                                {"note":"Repotted"}
+                                """))
+                .andExpect(status().isCreated());
+
+        mockMvc.perform(post("/api/plants/" + id + "/reminders")
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content("""
+                                {"type":"WATERING","dueDate":"2026-09-01","completed":false}
+                                """))
+                .andExpect(status().isCreated());
+
+        mockMvc.perform(delete("/api/plants/" + id))
+                .andExpect(status().isNoContent());
+    }
 }

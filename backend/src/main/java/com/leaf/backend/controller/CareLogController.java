@@ -17,7 +17,7 @@ import com.leaf.backend.entity.CareLog;
 import com.leaf.backend.entity.Plant;
 import com.leaf.backend.exception.ResourceNotFoundException;
 import com.leaf.backend.repository.CareLogRepository;
-import com.leaf.backend.repository.PlantRepository;
+import com.leaf.backend.service.PlantFinder;
 
 import jakarta.validation.Valid;
 
@@ -25,16 +25,16 @@ import jakarta.validation.Valid;
 public class CareLogController {
 
     private final CareLogRepository careLogRepository;
-    private final PlantRepository plantRepository;
+    private final PlantFinder plantFinder;
 
-    public CareLogController(CareLogRepository careLogRepository, PlantRepository plantRepository) {
+    public CareLogController(CareLogRepository careLogRepository, PlantFinder plantFinder) {
         this.careLogRepository = careLogRepository;
-        this.plantRepository = plantRepository;
+        this.plantFinder = plantFinder;
     }
 
     @GetMapping("/api/plants/{plantId}/logs")
     public List<CareLogResponse> getByPlant(@PathVariable Long plantId) {
-        requirePlant(plantId);
+        plantFinder.getOrThrow(plantId);
         return careLogRepository.findByPlantIdOrderByLoggedAtDesc(plantId).stream()
                 .map(CareLogResponse::from)
                 .toList();
@@ -42,7 +42,7 @@ public class CareLogController {
 
     @PostMapping("/api/plants/{plantId}/logs")
     public ResponseEntity<CareLogResponse> create(@PathVariable Long plantId, @Valid @RequestBody CareLogRequest request) {
-        Plant plant = requirePlant(plantId);
+        Plant plant = plantFinder.getOrThrow(plantId);
 
         CareLog careLog = new CareLog();
         careLog.setPlant(plant);
@@ -61,10 +61,5 @@ public class CareLogController {
                 .orElseThrow(() -> new ResourceNotFoundException("Care log " + id + " not found"));
         careLogRepository.delete(careLog);
         return ResponseEntity.noContent().build();
-    }
-
-    private Plant requirePlant(Long plantId) {
-        return plantRepository.findById(plantId)
-                .orElseThrow(() -> new ResourceNotFoundException("Plant " + plantId + " not found"));
     }
 }

@@ -9,5 +9,5 @@ import jakarta.validation.constraints.NotNull;
 public record ReminderRequest(
         @NotNull ReminderType type,
         @NotNull LocalDate dueDate,
-        boolean completed) {
+        @NotNull Boolean completed) {
 }

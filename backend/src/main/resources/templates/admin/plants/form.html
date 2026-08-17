@@ -1,0 +1,38 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <title th:text="${pageTitle} + ' — Leaf Admin'"></title>
+    <link rel="stylesheet" th:href="@{/css/admin.css}">
+</head>
+<body>
+<div th:replace="~{admin/fragments/nav :: nav}"></div>
+<main>
+    <h1 th:text="${pageTitle}"></h1>
+
+    <form class="plant-form" th:action="@{${formAction}}" th:object="${plantForm}" method="post">
+        <label for="name">Name</label>
+        <input type="text" id="name" th:field="*{name}">
+        <div class="field-error" th:if="${#fields.hasErrors('name')}" th:errors="*{name}"></div>
+
+        <label for="species">Species</label>
+        <input type="text" id="species" th:field="*{species}">
+
+        <label for="photoUrl">Photo URL</label>
+        <input type="text" id="photoUrl" th:field="*{photoUrl}">
+
+        <label for="wateringFrequencyDays">Watering Frequency (days)</label>
+        <input type="number" id="wateringFrequencyDays" min="1" th:field="*{wateringFrequencyDays}">
+        <div class="field-error" th:if="${#fields.hasErrors('wateringFrequencyDays')}" th:errors="*{wateringFrequencyDays}"></div>
+
+        <label for="lastWateredDate">Last Watered</label>
+        <input type="date" id="lastWateredDate" th:field="*{lastWateredDate}">
+
+        <p>
+            <input type="submit" value="Save">
+            <a class="button secondary" th:href="@{/admin/plants}">Cancel</a>
+        </p>
+    </form>
+</main>
+</body>
+</html>

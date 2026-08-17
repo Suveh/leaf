@@ -1,0 +1,79 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <title th:text="${plant.name} + ' — Leaf Admin'"></title>
+    <link rel="stylesheet" th:href="@{/css/admin.css}">
+</head>
+<body>
+<div th:replace="~{admin/fragments/nav :: nav}"></div>
+<main>
+    <div class="top-actions">
+        <a th:href="@{/admin/plants}">&larr; Back to Plants</a>
+    </div>
+
+    <h1 th:text="${plant.name}"></h1>
+    <p>
+        <strong>Species:</strong> <span th:text="${plant.species} ?: '—'"></span><br>
+        <strong>Watering Frequency:</strong> <span th:text="${plant.wateringFrequencyDays} + ' days'"></span><br>
+        <strong>Last Watered:</strong> <span th:text="${plant.lastWateredDate} ?: '—'"></span><br>
+        <strong>Added:</strong> <span th:text="${plant.createdAt}"></span>
+    </p>
+    <a class="button" th:href="@{/admin/plants/{id}/edit(id=${plant.id})}">Edit Plant</a>
+
+    <section class="detail-section">
+        <h2>Care Logs</h2>
+        <p class="empty-state" th:if="${#lists.isEmpty(careLogs)}">No care logs yet.</p>
+        <table th:unless="${#lists.isEmpty(careLogs)}">
+            <thead>
+            <tr>
+                <th>Logged At</th>
+                <th>Note</th>
+                <th>Actions</th>
+            </tr>
+            </thead>
+            <tbody>
+            <tr th:each="log : ${careLogs}">
+                <td th:text="${log.loggedAt}"></td>
+                <td th:text="${log.note}"></td>
+                <td class="actions">
+                    <form th:action="@{/admin/logs/{id}/delete(id=${log.id})}" method="post"
+                          onsubmit="return confirm('Delete this care log?');">
+                        <button type="submit" class="danger">Delete</button>
+                    </form>
+                </td>
+            </tr>
+            </tbody>
+        </table>
+    </section>
+
+    <section class="detail-section">
+        <h2>Reminders</h2>
+        <p class="empty-state" th:if="${#lists.isEmpty(reminders)}">No reminders yet.</p>
+        <table th:unless="${#lists.isEmpty(reminders)}">
+            <thead>
+            <tr>
+                <th>Type</th>
+                <th>Due Date</th>
+                <th>Completed</th>
+                <th>Actions</th>
+            </tr>
+            </thead>
+            <tbody>
+            <tr th:each="reminder : ${reminders}">
+                <td th:text="${reminder.type}"></td>
+                <td th:text="${reminder.dueDate}"></td>
+                <td th:text="${reminder.completed} ? 'Yes' : 'No'"></td>
+                <td class="actions">
+                    <form th:action="@{/admin/reminders/{id}/delete(id=${reminder.id})}" method="post"
+                          onsubmit="return confirm('Delete this reminder?');">
+                        <button type="submit" class="danger">Delete</button>
+                    </form>
+                </td>
+            </tr>
+            </tbody>
+        </table>
+    </section>
+</main>
+</body>
+</html>

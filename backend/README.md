@@ -21,6 +21,16 @@ mvnw.cmd spring-boot:run
 
 The app starts on `http://localhost:8080`.
 
+### H2 console
+
+The H2 web console is off by default. To enable it locally, run with the `dev` profile:
+
+```
+./mvnw spring-boot:run -Dspring-boot.run.profiles=dev
+```
+
+Then visit `http://localhost:8080/h2-console` (JDBC URL: `jdbc:h2:mem:leafdb`, user: `sa`, no password).
+
 ## Health check
 
 ```

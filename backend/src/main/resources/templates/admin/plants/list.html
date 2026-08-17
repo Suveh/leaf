@@ -1,0 +1,46 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <title>Plants — Leaf Admin</title>
+    <link rel="stylesheet" th:href="@{/css/admin.css}">
+</head>
+<body>
+<div th:replace="~{admin/fragments/nav :: nav}"></div>
+<main>
+    <h1>Plants</h1>
+    <div class="top-actions">
+        <a class="button" th:href="@{/admin/plants/new}">+ Add Plant</a>
+    </div>
+
+    <p class="empty-state" th:if="${#lists.isEmpty(plants)}">No plants yet.</p>
+
+    <table th:unless="${#lists.isEmpty(plants)}">
+        <thead>
+        <tr>
+            <th>Name</th>
+            <th>Species</th>
+            <th>Watering Frequency (days)</th>
+            <th>Last Watered</th>
+            <th>Actions</th>
+        </tr>
+        </thead>
+        <tbody>
+        <tr th:each="plant : ${plants}">
+            <td><a th:href="@{/admin/plants/{id}(id=${plant.id})}" th:text="${plant.name}"></a></td>
+            <td th:text="${plant.species} ?: '—'"></td>
+            <td th:text="${plant.wateringFrequencyDays}"></td>
+            <td th:text="${plant.lastWateredDate} ?: '—'"></td>
+            <td class="actions">
+                <a th:href="@{/admin/plants/{id}/edit(id=${plant.id})}">Edit</a>
+                <form th:action="@{/admin/plants/{id}/delete(id=${plant.id})}" method="post"
+                      onsubmit="return confirm('Delete this plant and all its logs and reminders?');">
+                    <button type="submit" class="danger">Delete</button>
+                </form>
+            </td>
+        </tr>
+        </tbody>
+    </table>
+</main>
+</body>
+</html>

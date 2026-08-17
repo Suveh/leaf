@@ -1,0 +1,16 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <title>Not Found — Leaf Admin</title>
+    <link rel="stylesheet" th:href="@{/css/admin.css}">
+</head>
+<body>
+<div th:replace="~{admin/fragments/nav :: nav}"></div>
+<main>
+    <h1>Not Found</h1>
+    <p th:text="${message}"></p>
+    <a class="button" th:href="@{/admin/plants}">Back to Plants</a>
+</main>
+</body>
+</html>

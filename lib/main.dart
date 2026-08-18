@@ -10,12 +10,16 @@ void main() {
 }
 
 class LeafApp extends StatelessWidget {
-  const LeafApp({super.key});
+  /// [plantsProvider] lets tests inject a [PlantsProvider] backed by a fake
+  /// API service instead of hitting the real backend over HTTP.
+  const LeafApp({super.key, this.plantsProvider});
+
+  final PlantsProvider? plantsProvider;
 
   @override
   Widget build(BuildContext context) {
     return ChangeNotifierProvider(
-      create: (_) => PlantsProvider(),
+      create: (_) => plantsProvider ?? PlantsProvider(),
       child: MaterialApp(
         title: 'Leaf',
         theme: AppTheme.light,

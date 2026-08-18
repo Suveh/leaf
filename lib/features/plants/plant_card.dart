@@ -39,7 +39,7 @@ class PlantCard extends StatelessWidget {
                     ),
                     const SizedBox(height: 4),
                     Text(
-                      plant.species,
+                      plant.species ?? 'Unknown species',
                       style: theme.textTheme.bodyMedium,
                     ),
                     if (plant.needsWateringToday) ...[

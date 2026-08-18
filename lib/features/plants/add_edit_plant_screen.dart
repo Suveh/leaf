@@ -7,8 +7,8 @@ import 'plant_form_model.dart';
 import 'plants_provider.dart';
 
 /// Add or edit a plant. Pass [plant] to edit an existing one; omit it to
-/// create a new one. UI only — the photo picker doesn't actually pick a
-/// photo yet, and saving only updates the in-memory plant list.
+/// create a new one. Saving sends the plant to the backend via
+/// [PlantsProvider]; the photo picker is still a UI stub.
 class AddEditPlantScreen extends StatelessWidget {
   const AddEditPlantScreen({super.key, this.plant});
 
@@ -34,6 +34,7 @@ class _AddEditForm extends StatefulWidget {
 
 class _AddEditFormState extends State<_AddEditForm> {
   final _formKey = GlobalKey<FormState>();
+  bool _isSaving = false;
 
   bool get _isEditing => widget.plant != null;
 
@@ -80,14 +81,32 @@ class _AddEditFormState extends State<_AddEditForm> {
                     labelText: 'Species',
                     prefixIcon: Icon(Icons.local_florist_outlined),
                   ),
-                  validator: (value) => (value == null || value.trim().isEmpty)
-                      ? 'Enter a species'
-                      : null,
+                ),
+                const SizedBox(height: 16),
+                TextFormField(
+                  controller: formModel.wateringFrequencyDaysController,
+                  keyboardType: TextInputType.number,
+                  decoration: const InputDecoration(
+                    labelText: 'Watering frequency (days)',
+                    prefixIcon: Icon(Icons.water_drop_outlined),
+                  ),
+                  validator: (value) {
+                    final parsed = int.tryParse(value?.trim() ?? '');
+                    return (parsed == null || parsed <= 0)
+                        ? 'Enter a whole number of days greater than 0'
+                        : null;
+                  },
                 ),
                 const SizedBox(height: 32),
                 ElevatedButton(
-                  onPressed: () => _save(context, formModel),
-                  child: Text(_isEditing ? 'Save Changes' : 'Add Plant'),
+                  onPressed: _isSaving ? null : () => _save(context, formModel),
+                  child: _isSaving
+                      ? const SizedBox(
+                          height: 20,
+                          width: 20,
+                          child: CircularProgressIndicator(strokeWidth: 2),
+                        )
+                      : Text(_isEditing ? 'Save Changes' : 'Add Plant'),
                 ),
               ],
             ),
@@ -97,35 +116,45 @@ class _AddEditFormState extends State<_AddEditForm> {
     );
   }
 
-  void _save(BuildContext context, PlantFormModel formModel) {
+  Future<void> _save(BuildContext context, PlantFormModel formModel) async {
     if (!_formKey.currentState!.validate()) return;
 
     final plantsProvider = context.read<PlantsProvider>();
     final existing = widget.plant;
+    final name = formModel.nameController.text.trim();
+    final species = formModel.speciesController.text.trim();
+    final wateringFrequencyDays = int.parse(
+      formModel.wateringFrequencyDaysController.text.trim(),
+    );
 
-    final plant =
-        (existing ??
-                Plant(
-                  id: _newId(),
-                  name: '',
-                  species: '',
-                  nextWateringDate: DateTime.now(),
-                ))
-            .copyWith(
-          name: formModel.nameController.text.trim(),
-          species: formModel.speciesController.text.trim(),
+    final plant = Plant(
+      id: existing?.id ?? '',
+      name: name,
+      species: species.isEmpty ? null : species,
+      wateringFrequencyDays: wateringFrequencyDays,
+      imagePath: existing?.imagePath,
+      lastWateredDate: existing?.lastWateredDate,
+      createdAt: existing?.createdAt,
+    );
+
+    setState(() => _isSaving = true);
+    try {
+      if (existing == null) {
+        await plantsProvider.addPlant(plant);
+      } else {
+        await plantsProvider.updatePlant(plant);
+      }
+      if (context.mounted) Navigator.of(context).pop();
+    } catch (e) {
+      if (context.mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(content: Text('Could not save this plant: $e')),
         );
-
-    if (existing == null) {
-      plantsProvider.addPlant(plant);
-    } else {
-      plantsProvider.updatePlant(plant);
+      }
+    } finally {
+      if (mounted) setState(() => _isSaving = false);
     }
-
-    Navigator.of(context).pop();
   }
-
-  String _newId() => 'p_${DateTime.now().microsecondsSinceEpoch}';
 }
 
 class _PhotoPicker extends StatelessWidget {

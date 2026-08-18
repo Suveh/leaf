@@ -22,6 +22,12 @@
     <a class="button" th:href="@{/admin/plants/{id}/edit(id=${plant.id})}">Edit Plant</a>
 
     <section class="detail-section">
+        <h2>AI Care Summary</h2>
+        <button type="button" id="care-summary-btn" th:attr="data-plant-id=${plant.id}">Get Care Summary</button>
+        <p id="care-summary-result" class="care-summary-result" hidden></p>
+    </section>
+
+    <section class="detail-section">
         <h2>Care Logs</h2>
         <p class="empty-state" th:if="${#lists.isEmpty(careLogs)}">No care logs yet.</p>
         <table th:unless="${#lists.isEmpty(careLogs)}">
@@ -75,5 +81,40 @@
         </table>
     </section>
 </main>
+<script th:inline="none">
+    document.getElementById('care-summary-btn').addEventListener('click', function () {
+        var btn = this;
+        var result = document.getElementById('care-summary-result');
+        var plantId = btn.getAttribute('data-plant-id');
+
+        btn.disabled = true;
+        btn.textContent = 'Generating…';
+        result.hidden = true;
+        result.classList.remove('error');
+
+        fetch('/api/plants/' + plantId + '/care-summary')
+            .then(function (response) {
+                if (!response.ok) {
+                    return response.json().then(function (body) {
+                        throw new Error(body.message || 'Failed to generate a care summary.');
+                    });
+                }
+                return response.json();
+            })
+            .then(function (data) {
+                result.textContent = data.summary;
+                result.hidden = false;
+            })
+            .catch(function (err) {
+                result.textContent = err.message;
+                result.classList.add('error');
+                result.hidden = false;
+            })
+            .finally(function () {
+                btn.disabled = false;
+                btn.textContent = 'Get Care Summary';
+            });
+    });
+</script>
 </body>
 </html>

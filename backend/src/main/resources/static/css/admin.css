@@ -135,3 +135,17 @@ section.detail-section {
 section.detail-section h2 {
     margin-bottom: 0.5rem;
 }
+
+.care-summary-result {
+    background: #fff;
+    border-left: 4px solid #2e4d2e;
+    padding: 0.75rem 1rem;
+    margin-top: 0.75rem;
+    max-width: 640px;
+    white-space: pre-wrap;
+}
+
+.care-summary-result.error {
+    border-left-color: #a4413a;
+    color: #a4413a;
+}

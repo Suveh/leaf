@@ -1,73 +1,68 @@
 import 'package:flutter/foundation.dart';
 
 import 'plant.dart';
+import 'plant_api_service.dart';
 
-/// How far out watering is pushed when a plant is marked as watered today.
-/// Dummy default — real per-plant watering intervals come later.
-const _defaultWateringIntervalDays = 7;
-
-/// Holds the in-memory list of the user's plants. Seeded with dummy data —
-/// there is no persistence layer yet, so additions/edits only last for the
-/// current app session.
+/// Holds the user's plants, fetched from the backend via [PlantApiService].
+/// Exposes basic loading/error state so screens can show a spinner or an
+/// error-with-retry message while talking to the API.
 class PlantsProvider extends ChangeNotifier {
-  PlantsProvider() : _now = DateTime.now();
+  PlantsProvider({PlantApiService? apiService})
+    : _apiService = apiService ?? PlantApiService() {
+    loadPlants();
+  }
 
-  final DateTime _now;
+  final PlantApiService _apiService;
 
-  late final List<Plant> _plants = [
-    Plant(
-      id: 'p1',
-      name: 'Monty',
-      species: 'Monstera deliciosa',
-      nextWateringDate: _now.subtract(const Duration(days: 2)),
-    ),
-    Plant(
-      id: 'p2',
-      name: 'Sable',
-      species: 'Dracaena trifasciata (Snake Plant)',
-      nextWateringDate: _now.add(const Duration(days: 5)),
-    ),
-    Plant(
-      id: 'p3',
-      name: 'Percy',
-      species: 'Epipremnum aureum (Pothos)',
-      nextWateringDate: _now,
-    ),
-    Plant(
-      id: 'p4',
-      name: 'Fig Newton',
-      species: 'Ficus lyrata (Fiddle Leaf Fig)',
-      nextWateringDate: _now.add(const Duration(days: 2)),
-    ),
-  ];
+  List<Plant> _plants = [];
+  bool _isLoading = false;
+  String? _errorMessage;
 
   List<Plant> get plants => List.unmodifiable(_plants);
+  bool get isLoading => _isLoading;
+  String? get errorMessage => _errorMessage;
 
   int get totalCount => _plants.length;
 
   int get needsWateringCount =>
       _plants.where((plant) => plant.needsWateringToday).length;
 
-  void addPlant(Plant plant) {
-    _plants.add(plant);
+  /// Fetches the plant list from the backend. Safe to call again to retry
+  /// after a failure.
+  Future<void> loadPlants() async {
+    _isLoading = true;
+    _errorMessage = null;
+    notifyListeners();
+
+    try {
+      _plants = await _apiService.getPlants();
+      _errorMessage = null;
+    } catch (e) {
+      _errorMessage = e.toString();
+    } finally {
+      _isLoading = false;
+      notifyListeners();
+    }
+  }
+
+  Future<void> addPlant(Plant plant) async {
+    final created = await _apiService.createPlant(plant);
+    _plants.add(created);
     notifyListeners();
   }
 
-  void updatePlant(Plant plant) {
-    final index = _plants.indexWhere((p) => p.id == plant.id);
+  Future<void> updatePlant(Plant plant) async {
+    final updated = await _apiService.updatePlant(plant);
+    final index = _plants.indexWhere((p) => p.id == updated.id);
     if (index == -1) return;
-    _plants[index] = plant;
+    _plants[index] = updated;
     notifyListeners();
   }
 
   void markAsWateredToday(String id) {
     final index = _plants.indexWhere((p) => p.id == id);
     if (index == -1) return;
-    _plants[index] = _plants[index].copyWith(
-      nextWateringDate: DateTime.now().add(
-        const Duration(days: _defaultWateringIntervalDays),
-      ),
-    );
+    _plants[index] = _plants[index].copyWith(lastWateredDate: DateTime.now());
     notifyListeners();
   }
 }

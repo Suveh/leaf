@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 
+import '../../theme/theme_data.dart';
 import 'add_edit_plant_screen.dart';
 import 'plant.dart';
 import 'plant_card.dart';
@@ -38,6 +39,17 @@ class _PlantList extends StatelessWidget {
       builder: (context, plantsProvider, _) {
         final plants = plantsProvider.plants;
 
+        if (plantsProvider.isLoading && plants.isEmpty) {
+          return const Center(child: CircularProgressIndicator());
+        }
+
+        if (plantsProvider.errorMessage != null && plants.isEmpty) {
+          return _ErrorState(
+            message: plantsProvider.errorMessage!,
+            onRetry: plantsProvider.loadPlants,
+          );
+        }
+
         if (plants.isEmpty) {
           return const Center(child: Text('No plants yet. Add your first!'));
         }
@@ -62,6 +74,46 @@ class _PlantList extends StatelessWidget {
     Navigator.of(context).push(
       MaterialPageRoute(
         builder: (_) => PlantDetailScreen(plantId: plant.id),
+      ),
+    );
+  }
+}
+
+/// Shown when fetching the plant list from the backend fails (e.g. it isn't
+/// running), with a retry action.
+class _ErrorState extends StatelessWidget {
+  const _ErrorState({required this.message, required this.onRetry});
+
+  final String message;
+  final VoidCallback onRetry;
+
+  @override
+  Widget build(BuildContext context) {
+    return Center(
+      child: Padding(
+        padding: const EdgeInsets.all(24),
+        child: Column(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            const Icon(
+              Icons.cloud_off_outlined,
+              size: 40,
+              color: AppColors.overdueRed,
+            ),
+            const SizedBox(height: 12),
+            Text(
+              message,
+              textAlign: TextAlign.center,
+              style: Theme.of(context).textTheme.bodyMedium,
+            ),
+            const SizedBox(height: 16),
+            ElevatedButton.icon(
+              onPressed: onRetry,
+              icon: const Icon(Icons.refresh),
+              label: const Text('Retry'),
+            ),
+          ],
+        ),
       ),
     );
   }

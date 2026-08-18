@@ -86,7 +86,7 @@ class _PlantDetailBody extends StatelessWidget {
               ),
               const SizedBox(height: 4),
               Text(
-                plant.species,
+                plant.species ?? 'Unknown species',
                 textAlign: TextAlign.center,
                 style: Theme.of(context).textTheme.bodyMedium,
               ),

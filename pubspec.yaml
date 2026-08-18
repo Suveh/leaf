@@ -38,6 +38,9 @@ dependencies:
   # State management, per CLAUDE.md (do NOT use GetX).
   provider: ^6.1.2
 
+  # HTTP calls to the backend API.
+  http: ^1.2.2
+
 dev_dependencies:
   flutter_test:
     sdk: flutter
